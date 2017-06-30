@@ -16,12 +16,18 @@ if  samanage_username == None or samanage_key == None:
 
 url = 'https://apieu.samanage.com'
 
-request = requests.get(url, auth = (samanage_username, samanage_key))
-print request.status_code
+#test connection to the server
+test = requests.get(url, auth = (samanage_username, samanage_key))
+    if test.status_code == 200:
+        print "Error: Cannot connect to server."
+        quit()
+print test.status_code
 
-print "Enter your file path below"
+#have user input their csv file
+print "Enter your csv file path below"
 filepath = raw_input()
 
+#read file and update Samanage accordingly
 with open(file, 'rb') as csvfile:
     reader = csv.reader(csvfile)
     next(reader, None)
@@ -31,6 +37,7 @@ with open(file, 'rb') as csvfile:
         if row[11] == 'P' or 'p':
             pass
 
+        #for modified assets
         else if row[11] == 'M' or 'm':
             extension = '/other_assets/%s.xml' %(row[10])
             for entry in row:
@@ -50,6 +57,7 @@ with open(file, 'rb') as csvfile:
                     data = json.dumps(data)
                     #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=json.dumps(data))
 
+        #for new assets
         else if row[11] == 'N' or 'n':
             extension = '/other_assets.xml'
             pass
