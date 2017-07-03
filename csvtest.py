@@ -5,7 +5,11 @@ import csv
 with open("csv.csv", "rb") as csvfile:
     reader = csv.reader(csvfile)
     for row in reader:
-        print row[1]
+        if row[3] == '':
+            print "NONE"
+        else:
+            print row
+
 
 '''
 word = "word"

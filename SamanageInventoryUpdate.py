@@ -55,12 +55,20 @@ with open(file, 'rb') as csvfile:
                         continue
                     data = {"other_asset":{ "%s":"%s" }, } %(field, content)
                     data = json.dumps(data)
-                    #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=json.dumps(data))
+                    #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
 
         #for new assets
         else if row[11] == 'N' or 'n':
             extension = '/other_assets.xml'
-            pass
+            data = {"other_asset": {"name": "%s", "asset_id": "%s",
+            "asset_type": {"name": "%s"}, "status": {"name": "Operational"},
+            "manufacturer": "%s", "model": "%s", "serial_number": "%s", "site": {"name": "%s"},
+            "department": {"name": "%s"},  "custom_fields_values": {"custom_fields_value":[
+            {"name": "Room", "value": "%s"}, {"name": "User", "value": "%s"} ] } } }
+            %(row[0], row[10], row[2], row[1], row[3], row[4], row[5], row[6], row[8], row[7], row[9])
+            data = json.dumps(data)
+            #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
+
         else:
             print "Error: Incomplete inventory status column, row %d. Row skipped." %(rownumber)
             next
