@@ -63,6 +63,13 @@ with open(file, 'rb') as csvfile:
 
         #for new assets
         else if row[11] == 'N' or 'n':
+            blanks = 0;
+            for entry in row:
+                if entry == '':
+                    blanks += 1
+            if blanks == 12:
+                continue
+
             extension = '/other_assets.xml'
             data = {"other_asset": {"name": "%s", "asset_id": "%s",
             "asset_type": {"name": "%s"}, "status": {"name": "Operational"},
