@@ -18,9 +18,9 @@ url = 'https://apieu.samanage.com'
 
 #test connection to the server
 test = requests.get(url, auth = (samanage_username, samanage_key))
-    if test.status_code == 200:
-        print "Error: Cannot connect to server."
-        quit()
+if test.status_code != 200:
+    print "Error: Cannot connect to server."
+    quit()
 print test.status_code
 
 #have user input their csv file
@@ -41,7 +41,7 @@ with open(file, 'rb') as csvfile:
         else if row[11] == 'M' or 'm':
             extension = '/other_assets/%s.xml' %(row[10])
             for entry in row:
-                if entry[0] == '@':
+                if entry[0] == '&':
                     content == entry[1:]
                     if row.index(entry) == 6:
                         field == 'Site'
