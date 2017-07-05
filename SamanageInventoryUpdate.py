@@ -43,12 +43,16 @@ with open(file, 'rb') as csvfile:
             for entry in row:
                 if entry[0] == '&':
                     content == entry[1:]
-                    if row.index(entry) == 6:
-                        field == 'Site'
+                    if row.index(entry) == 0:
+                        field == 'name'
+                    else if row.index(entry) == 1:
+                        field == 'status'
+                    else if row.index(entry) == 6:
+                        field == 'site'
                     else if row.index(entry) == 7:
                         field == 'Room'
                     else if row.index(entry) == 8:
-                        field == 'Department'
+                        field == 'department'
                     else if row.index(entry) == 9:
                         field == 'User'
                     else:
