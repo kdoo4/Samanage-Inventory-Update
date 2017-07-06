@@ -50,15 +50,21 @@ with open(file, 'rb') as csvfile:
                     else if row.index(entry) == 6:
                         field == 'site'
                     else if row.index(entry) == 7:
-                        field == 'Room'
+                        field == 'room'
                     else if row.index(entry) == 8:
                         field == 'department'
                     else if row.index(entry) == 9:
-                        field == 'User'
+                        field == 'user'
                     else:
                         continue
-                    data = {"other_asset":{ "%s":"%s" }, } %(field, content)
-                    data = json.dumps(data)
+                    #Data input for the different fields
+                    if field == 'name' or field == 'room':
+                        data = {"other_asset":{ "%s":"%s" }, } %(field, content)
+                    else if field == 'user':
+                        data = {"other_asset":{"%s": {"email": "%s"}}} %(field, content)
+                    else:
+                        data = {"other_asset":{"%s": {"name": "%s"}}}
+                    data = json.dumps(data) %(field, content)
                     #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
 
         #for new assets
@@ -75,14 +81,14 @@ with open(file, 'rb') as csvfile:
             "asset_type": {"name": "%s"}, "status": {"name": "Operational"},
             "manufacturer": "%s", "model": "%s", "serial_number": "%s", "site": {"name": "%s"},
             "department": {"name": "%s"},  "custom_fields_values": {"custom_fields_value":[
-            {"name": "Room", "value": "%s"}, {"name": "User", "value": "%s"} ] } } }
+            {"name": "room", "value": "%s"}, {"name": "user", "value": {"email": "%s"}} ] } } }
             %(row[0], row[10], row[2], row[1], row[3], row[4], row[5], row[6], row[8], row[7], row[9])
             data = json.dumps(data)
             #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
 
         else:
             print "Error: Incomplete inventory status column, row %d. Row skipped." %(rownumber)
-            next
+
 
 
         rownumber += 1
