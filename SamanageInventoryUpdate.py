@@ -6,10 +6,10 @@ import csv
 import os
 
 #Call Samanage credentials from the environment
-"""
+
 samanage_username = str(os.getenv('SAMANAGE_USERNAME'))
 samanage_key = str(os.getenv('SAMANAGE_KEY'))
-"""
+
 if  samanage_username == None or samanage_key == None:
     print "Please setup SAMANAGE_KEY and SAMANAGE_USERNAME variables in your environement"
     quit()
@@ -25,50 +25,49 @@ print test.status_code
 
 #have user input their csv file
 print "Enter your csv file path below"
-filepath = raw_input()
+filepath = raw_input().rstrip()
 
 #read file and update Samanage accordingly
-with open(file, 'rb') as csvfile:
+with open(filepath, 'rU') as csvfile:
     reader = csv.reader(csvfile)
     next(reader, None)
     rownumber = 2
 
     for row in reader:
-        if row[11] == 'P' or 'p':
+        if row[11].lower() == 'p':
             pass
 
         #for modified assets
-        else if row[11] == 'M' or 'm':
-            extension = '/other_assets/%s.xml' %(row[10])
+        elif row[11].lower() == 'm':
+            extension = '/other_assets/%s.json' %(row[10])
             for entry in row:
                 if entry[0] == '&':
                     content == entry[1:]
                     if row.index(entry) == 0:
                         field == 'name'
-                    else if row.index(entry) == 1:
+                    elif row.index(entry) == 1:
                         field == 'status'
-                    else if row.index(entry) == 6:
+                    elif row.index(entry) == 6:
                         field == 'site'
-                    else if row.index(entry) == 7:
+                    elif row.index(entry) == 7:
                         field == 'room'
-                    else if row.index(entry) == 8:
+                    elif row.index(entry) == 8:
                         field == 'department'
-                    else if row.index(entry) == 9:
+                    elif row.index(entry) == 9:
                         field == 'user'
                     else:
                         continue
                     #Data input for the different fields
                     if field == 'name' or field == 'room':
                         data = {"other_asset":{ "%s":"%s" }, } %(field, content)
-                    else if field == 'user':
-                        data = {"other_asset":{"%s": {"email": "%s"}}} %(field, content)
                     else:
-                        data = {"other_asset":{"%s": {"name": "%s"}}}
-                    data = json.dumps(data) %(field, content)
-                    #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
+                        data = {"other_asset":{"%s": {"name": "%s"}}} %(field, content)
+                    data = json.dumps(data)
+                    request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
+                    print request.content
 
         #for new assets
-        else if row[11] == 'N' or 'n':
+        elif row[11].lower() == 'n':
             blanks = 0;
             for entry in row:
                 if entry == '':
@@ -76,15 +75,16 @@ with open(file, 'rb') as csvfile:
             if blanks == 12:
                 continue
 
-            extension = '/other_assets.xml'
-            data = {"other_asset": {"name": "%s", "asset_id": "%s",
-            "asset_type": {"name": "%s"}, "status": {"name": "Operational"},
-            "manufacturer": "%s", "model": "%s", "serial_number": "%s", "site": {"name": "%s"},
-            "department": {"name": "%s"},  "custom_fields_values": {"custom_fields_value":[
-            {"name": "room", "value": "%s"}, {"name": "user", "value": {"email": "%s"}} ] } } }
-            %(row[0], row[10], row[2], row[1], row[3], row[4], row[5], row[6], row[8], row[7], row[9])
+            extension = '/other_assets.json'
+            data = {"other_asset": {"name": row[0], "asset_id": row[10],
+            "asset_type": {"name": row[2]}, "status": {"name": row[1]},
+            "manufacturer": row[3], "model": row[4], "serial_number": row[5], "site": {"name": row[6]},
+            "department": {"name": row[8]},  "custom_fields_values": {"custom_fields_value":[
+            {"name": "room", "value": row[7]}, {"name": "user", "value": {"email": row[9]}} ] } } }
             data = json.dumps(data)
-            #request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
+            print url+extension
+            request = requests.post(url+extension, auth = (samanage_username, samanage_key), data=data)
+            print request.content
 
         else:
             print "Error: Incomplete inventory status column, row %d. Row skipped." %(rownumber)
