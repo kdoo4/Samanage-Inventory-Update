@@ -7,21 +7,18 @@ import os
 
 #Call Samanage credentials from the environment
 
-samanage_username = str(os.getenv('SAMANAGE_USERNAME'))
-samanage_key = str(os.getenv('SAMANAGE_KEY'))
+samanage_token = str(os.getenv('SAMANAGE_TOKEN'))
 
-if  samanage_username == None or samanage_key == None:
-    print "Please setup SAMANAGE_KEY and SAMANAGE_USERNAME variables in your environement"
+if  samanage_token == None:
+    print "Please setup SAMANAGE_TOKEN variable in your environement"
     quit()
 
+headers = {
+    'X-Samanage-Authorization': 'Bearer %s' %(samanage_token),
+    'Accept': 'application/vnd.samanage.v2.1+json',
+    'Content-Type': 'application/json',
+}
 url = 'https://apieu.samanage.com'
-
-#test connection to the server
-test = requests.get(url, auth = (samanage_username, samanage_key))
-if test.status_code != 200:
-    print "Error: Cannot connect to server."
-    quit()
-print test.status_code
 
 #have user input their csv file
 print "Enter your csv file path below"
@@ -63,7 +60,7 @@ with open(filepath, 'rU') as csvfile:
                     else:
                         data = {"other_asset":{"%s": {"name": "%s"}}} %(field, content)
                     data = json.dumps(data)
-                    request = requests.post(url+extension, auth=(samanage_username, samanage_key), data=data)
+                    request = requests.post(url+extension, headers=headers, data=data)
                     print request.content
 
         #for new assets
@@ -83,8 +80,9 @@ with open(filepath, 'rU') as csvfile:
             {"name": "room", "value": row[7]}, {"name": "user", "value": {"email": row[9]}} ] } } }
             data = json.dumps(data)
             print url+extension
-            request = requests.post(url+extension, auth = (samanage_username, samanage_key), data=data)
-            print request.content
+            request = requests.post(url+extension, headers=headers, data=data)
+            print request.status_code
+
 
         else:
             print "Error: Incomplete inventory status column, row %d. Row skipped." %(rownumber)
