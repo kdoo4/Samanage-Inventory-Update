@@ -20,6 +20,7 @@ headers = {
 }
 url = 'https://apieu.samanage.com'
 
+
 #have user input their csv file
 print "Enter your csv file path below"
 filepath = raw_input().rstrip()
@@ -39,28 +40,30 @@ with open(filepath, 'rU') as csvfile:
             extension = '/other_assets/%s.json' %(row[10])
             for entry in row:
                 if entry[0] == '&':
-                    content == entry[1:]
+                    content = str(entry[1:])
                     if row.index(entry) == 0:
-                        field == 'name'
+                        field = 'name'
                     elif row.index(entry) == 1:
-                        field == 'status'
+                        field = 'status'
                     elif row.index(entry) == 6:
-                        field == 'site'
+                        field = 'site'
                     elif row.index(entry) == 7:
-                        field == 'room'
+                        field = 'room'
                     elif row.index(entry) == 8:
-                        field == 'department'
+                        field = 'department'
                     elif row.index(entry) == 9:
-                        field == 'user'
+                        field = 'user'
                     else:
                         continue
                     #Data input for the different fields
                     if field == 'name' or field == 'room':
-                        data = {"other_asset":{ "%s":"%s" }, } %(field, content)
+                        data = {"other_asset":{field: content}, }
                     else:
-                        data = {"other_asset":{"%s": {"name": "%s"}}} %(field, content)
+                        data = {"other_asset":{field: {"name": content}}}
                     data = json.dumps(data)
+                    print url+extension
                     request = requests.post(url+extension, headers=headers, data=data)
+                    print request.status_code
                     print request.content
 
         #for new assets
