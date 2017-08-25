@@ -20,6 +20,10 @@ headers = {
 }
 url = 'https://apieu.samanage.com'
 
+#Test request to server
+request = requests.get("", headers=headers)
+print request.status_code
+
 
 #have user input their csv file
 print "Enter your csv file path below"
@@ -32,30 +36,32 @@ with open(filepath, 'rU') as csvfile:
     rownumber = 2
 
     for row in reader:
-        if row[11].lower() == 'p':
+        if row[12].lower() == 'p':
             pass
 
-        #for modified assets
-        elif row[11].lower() == 'm':
-            extension = '/other_assets/%s.json' %(row[10])
+        """For Modified Assets: Checks the fields that would have been Modified
+        and updates them in Samanage """
+        elif row[12].lower() == 'm':
+            extension = '/other_assets/%d.json' %(row[0])
             for entry in row:
+                #Preceding character to signify updated field
                 if entry[0] == '&':
                     content = str(entry[1:])
-                    if row.index(entry) == 0:
+                    if row.index(entry) == 1:
                         field = 'name'
-                    elif row.index(entry) == 1:
+                    elif row.index(entry) == 2:
                         field = 'status'
-                    elif row.index(entry) == 6:
-                        field = 'site'
                     elif row.index(entry) == 7:
-                        field = 'room'
+                        field = 'site'
                     elif row.index(entry) == 8:
-                        field = 'department'
+                        field = 'room'
                     elif row.index(entry) == 9:
+                        field = 'department'
+                    elif row.index(entry) == 10:
                         field = 'user'
                     else:
                         continue
-                    #Data input for the different fields
+                    #Samanage data formats for the different fields
                     if field == 'name' or field == 'room':
                         data = {"other_asset":{field: content}, }
                     else:
@@ -66,27 +72,29 @@ with open(filepath, 'rU') as csvfile:
                     print request.status_code
                     print request.content
 
-        #for new assets
-        elif row[11].lower() == 'n':
+        #Creating new assets
+        elif row[12].lower() == 'n':
+            #Check to make sure no blank rows are made as assets
             blanks = 0;
             for entry in row:
-                if entry == '':
+                if entry == '' of ' ':
                     blanks += 1
-            if blanks == 12:
+            if blanks == 13:
                 continue
 
+            #Grab data from row and put it into json format
             extension = '/other_assets.json'
-            data = {"other_asset": {"name": row[0], "asset_id": row[10],
-            "asset_type": {"name": row[2]}, "status": {"name": row[1]},
-            "manufacturer": row[3], "model": row[4], "serial_number": row[5], "site": {"name": row[6]},
-            "department": {"name": row[8]},  "custom_fields_values": {"custom_fields_value":[
-            {"name": "room", "value": row[7]}, {"name": "user", "value": {"email": row[9]}} ] } } }
+            data = {"other_asset": {"name": row[1], "asset_id": row[11],
+            "asset_type": {"name": row[3]}, "status": {"name": row[2]},
+            "manufacturer": row[4], "model": row[5], "serial_number": row[6], "site": {"name": row[7]},
+            "department": {"name": row[9]},  "custom_fields_values": {"custom_fields_value":[
+            {"name": "room", "value": row[8]}, {"name": "user", "value": {"email": row[10]}} ] } } }
             data = json.dumps(data)
             print url+extension
             request = requests.post(url+extension, headers=headers, data=data)
             print request.status_code
 
-
+        #Check for unaccounted for assets
         else:
             print "Error: Incomplete inventory status column, row %d. Row skipped." %(rownumber)
 
